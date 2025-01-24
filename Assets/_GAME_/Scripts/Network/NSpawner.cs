@@ -49,6 +49,9 @@ namespace GGJ
 
             if (Input.GetKey(KeyCode.D))
                 data.direction += Vector3.right;
+            
+            data.buttons.Set( NetworkInputData.MOUSEBUTTON0, _mouseButton0);
+            _mouseButton0 = false;
 
             input.Set(data);
         }
@@ -70,9 +73,15 @@ namespace GGJ
         public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress){ }
         
         private NetworkRunner _runner;
+        private bool _mouseButton0;
+        
+        private void Update()
+        {
+            _mouseButton0 = _mouseButton0 | Input.GetMouseButton(0);
+        }
 
         // ReSharper disable Unity.PerformanceAnalysis
-        async void StartGame(GameMode mode)
+        private async void StartGame(GameMode mode)
         {
             // Create the Fusion runner and let it know that we will be providing user input
             _runner = gameObject.AddComponent<NetworkRunner>();
@@ -85,7 +94,7 @@ namespace GGJ
                 sceneInfo.AddSceneRef(scene, LoadSceneMode.Additive);
             }
 
-            // Start or join (depends on gamemode) a session with a specific name
+            // Start or join (depends on GameMode) a session with a specific name
             await _runner.StartGame(new StartGameArgs()
             {
                 GameMode = mode,
