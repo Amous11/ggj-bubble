@@ -57,16 +57,14 @@ namespace GGJ
          
         private void OnGUI()
         {
-            if (_runner == null)
+            if (_runner is not null) return;
+            if (GUI.Button(new Rect(0,0,200,40), "Host"))
             {
-                if (GUI.Button(new Rect(0,0,200,40), "Host"))
-                {
-                    StartGame(GameMode.Host);
-                }
-                if (GUI.Button(new Rect(0,40,200,40), "Join"))
-                {
-                    StartGame(GameMode.Client);
-                }
+                StartGame(GameMode.Host);
+            }
+            if (GUI.Button(new Rect(0,40,200,40), "Join"))
+            {
+                StartGame(GameMode.Client);
             }
         }
     }
