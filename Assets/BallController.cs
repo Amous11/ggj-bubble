@@ -31,7 +31,7 @@ namespace GGJ
         private bool isGrounded;
         private bool isTouchingWall; // Check if touching a wall
         private bool isWallSliding; // Flag for wall sliding
-
+        public bool canStick;
         private WallStickController wallStickController;
 
         private void Awake()
@@ -61,7 +61,14 @@ namespace GGJ
 
             controller.Move(moveDirection * Time.deltaTime);
         }
+        IEnumerator DisableStickBehavior()
+        {
+            canStick = false;
 
+            yield return new WaitForSeconds(1);
+            canStick = true;
+
+        }
         private void HandleMovement()
         {
             float moveHorizontal = Input.GetAxisRaw("Horizontal");
@@ -90,15 +97,35 @@ namespace GGJ
         {
             if (isGrounded && Input.GetKeyDown(KeyCode.Space))
             {
+                // Normal jump when grounded
                 verticalVelocity = jumpForce;
-                isWallSliding = false; // Stop sliding if you jump
+                isWallSliding = false; // Ensure sliding is stopped when jumping from the ground
             }
 
             if (!isGrounded && isTouchingWall && Input.GetKeyDown(KeyCode.Space))
             {
-                // Jump off the wall
-                verticalVelocity = jumpForce;
-                isWallSliding = false;
+                // Eliminate sticky behavior and perform jump
+                StartCoroutine("DisableStickBehavior");
+                isWallSliding = false; // Stop wall sliding when jumping off the wall
+
+                // Apply vertical velocity like a normal jump (no wall influence)
+                verticalVelocity = jumpForce+5;
+
+                // Reset horizontal movement to avoid sticking to the wall
+                moveDirection.x = 0f; // Reset horizontal movement
+                moveDirection.z = 0f;
+
+                // Calculate direction opposite to the wall to jump away from it
+                Vector3 wallDirection = transform.right; // If touching the left side of the wall, this will give the opposite direction
+                if (isTouchingWall && !isGrounded)
+                {
+                    wallDirection = -transform.right; // Jump in the opposite direction of the wall
+                }
+
+                // Apply horizontal force to move the player away from the wall (in the opposite direction)
+                moveDirection += wallDirection * speed;
+
+                isWallSliding = false; // Stop wall sliding when jumping off the wall
             }
 
             if (isTouchingWall && !isGrounded && !isWallSliding)
@@ -110,6 +137,8 @@ namespace GGJ
             verticalVelocity += gravity * Time.deltaTime;
             moveDirection.y = verticalVelocity;
         }
+
+
 
         private void HandleRotation()
         {
@@ -135,7 +164,7 @@ namespace GGJ
         // Detect when player enters a wall trigger
         private void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("Wall"))
+            if (other.CompareTag("Wall") && canStick)
             {
                 isTouchingWall = true;
                 // Start wall sliding if the player is not grounded
