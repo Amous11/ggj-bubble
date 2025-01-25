@@ -32,12 +32,10 @@ namespace GGJ
         private bool isTouchingWall; // Check if touching a wall
         private bool isWallSliding; // Flag for wall sliding
         public bool canStick;
-        private WallStickController wallStickController;
 
         private void Awake()
         {
             controller = GetComponent<CharacterController>();
-            wallStickController = GetComponent<WallStickController>(); // Reference to the WallStickController
         }
 
         private void Update()
@@ -64,7 +62,8 @@ namespace GGJ
         IEnumerator DisableStickBehavior()
         {
             canStick = false;
-
+            isWallSliding = false;
+            isTouchingWall = false;
             yield return new WaitForSeconds(1);
             canStick = true;
 
@@ -109,11 +108,11 @@ namespace GGJ
                 isWallSliding = false; // Stop wall sliding when jumping off the wall
 
                 // Apply vertical velocity like a normal jump (no wall influence)
-                verticalVelocity = jumpForce+5;
+                verticalVelocity = jumpForce/1.5f;
 
                 // Reset horizontal movement to avoid sticking to the wall
-                moveDirection.x = 0f; // Reset horizontal movement
-                moveDirection.z = 0f;
+                //moveDirection.x = 0f; // Reset horizontal movement
+                //moveDirection.z = 0f;
 
                 // Calculate direction opposite to the wall to jump away from it
                 Vector3 wallDirection = transform.right; // If touching the left side of the wall, this will give the opposite direction
@@ -123,12 +122,12 @@ namespace GGJ
                 }
 
                 // Apply horizontal force to move the player away from the wall (in the opposite direction)
-                moveDirection += wallDirection * speed;
+                //moveDirection += wallDirection * speed;
 
                 isWallSliding = false; // Stop wall sliding when jumping off the wall
             }
 
-            if (isTouchingWall && !isGrounded && !isWallSliding)
+            if (isTouchingWall && !isGrounded && !isWallSliding && canStick)
             {
                 // Start wall sliding when player is not grounded and touches the wall
                 isWallSliding = true;
