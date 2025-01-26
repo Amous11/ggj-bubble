@@ -10,9 +10,8 @@ namespace GGJ
     // and visual feedback for the player (engine & destruction VFX)
     public class PlayerVisualController : MonoBehaviour
     {
-        [SerializeField] private MeshRenderer _playerModel = null;
+        [SerializeField] private SkinnedMeshRenderer _playerModel = null;
         [SerializeField] private ParticleSystem _destructionVFX = null;
-        [SerializeField] private ParticleSystem _engineTrailVFX = null;
 
         // Colors the ship in the color assigned to the PlayerRef's index
         public void SetColorFromPlayerID(int playerID)
@@ -26,14 +25,12 @@ namespace GGJ
         public void TriggerSpawn()
         {
             _playerModel.enabled = true;
-            _engineTrailVFX.Play();
             _destructionVFX.Stop(); 
         }
 
         public void TriggerDestruction()
         {
             _playerModel.enabled = false;
-            _engineTrailVFX.Stop();
             _destructionVFX.Play();
         }
 

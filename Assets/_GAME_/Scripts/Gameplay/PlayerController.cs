@@ -15,7 +15,7 @@ namespace GGJ
         // Game Session AGNOSTIC Settings
         [SerializeField] private float _respawnDelay = 4.0f;
         [SerializeField] private float _spaceshipDamageRadius = 2.5f;
-        [SerializeField] private LayerMask _asteroidCollisionLayer;
+        // [SerializeField] private LayerMask _asteroidCollisionLayer;
 
         // Local Runtime references
         private ChangeDetector _changeDetector;

@@ -21,7 +21,7 @@ namespace GGJ
         [SerializeField] private float _gameSessionLength = 180.0f;
 
         [SerializeField] private TextMeshProUGUI _startEndDisplay = null;
-        [SerializeField] private TextMeshProUGUI _ingameTimerDisplay = null;
+        // [SerializeField] private TextMeshProUGUI _ingameTimerDisplay = null;
 
         [Networked] private TickTimer _timer { get; set; }
         [Networked] private GameState _gameState { get; set; }
@@ -36,7 +36,7 @@ namespace GGJ
             // --- when a CLIENT joins a game
 
             _startEndDisplay.gameObject.SetActive(true);
-            _ingameTimerDisplay.gameObject.SetActive(false);
+            // _ingameTimerDisplay.gameObject.SetActive(false);
 
             // If the game has already started, find all currently active players' PlayerDataNetworked component Ids
             if (_gameState != GameState.Starting)
@@ -108,9 +108,9 @@ namespace GGJ
             // --- Host & Client
             // Display the remaining time until the game ends in seconds (rounded down to the closest full second)
             _startEndDisplay.gameObject.SetActive(false);
-            _ingameTimerDisplay.gameObject.SetActive(true);
-            _ingameTimerDisplay.text =
-                $"{Mathf.RoundToInt(_timer.RemainingTime(Runner) ?? 0).ToString("000")} seconds left";
+            // _ingameTimerDisplay.gameObject.SetActive(true);
+            // _ingameTimerDisplay.text =
+                // $"{Mathf.RoundToInt(_timer.RemainingTime(Runner) ?? 0).ToString("000")} seconds left";
         }
 
         private void UpdateEndingDisplay()
@@ -122,7 +122,7 @@ namespace GGJ
             if (Runner.TryFindBehaviour(_winner, out PlayerDataNetworked playerData) == false) return;
 
             _startEndDisplay.gameObject.SetActive(true);
-            _ingameTimerDisplay.gameObject.SetActive(false);
+            // _ingameTimerDisplay.gameObject.SetActive(false);
             _startEndDisplay.text =
                 $"{playerData.NickName} won with {playerData.Score} points. Disconnecting in {Mathf.RoundToInt(_timer.RemainingTime(Runner) ?? 0)}";
             _startEndDisplay.color = PlayerVisualController.GetColor(playerData.Object.InputAuthority.PlayerId);
