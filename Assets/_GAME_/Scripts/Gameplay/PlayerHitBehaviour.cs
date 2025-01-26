@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace GGJ
 {
-    public class PlayerHitBehaviour : MonoBehaviour
+    public class PlayerHitBehaviour : NetworkBehaviour
     {
         // The _points variable can be a local private variable as it will only be used to add points to the score
         // The score itself is networked and any increase or decrease will be propagated automatically.
