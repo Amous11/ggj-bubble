@@ -81,20 +81,5 @@ namespace GGJ
             // GameMode.Client = Join a session with a specific name
             await _runnerInstance.StartGame(startGameArgs);
         }
-        
-        private void OnGUI()
-        {
-            if (_runnerInstance is null)
-            {
-                if (GUI.Button(new Rect(0,0,200,40), "Host"))
-                {
-                    StartGame(GameMode.Host, "room");
-                }
-                if (GUI.Button(new Rect(0,40,200,40), "Join"))
-                {
-                    StartGame(GameMode.Client, "room");
-                }
-            }
-        }
     }
 }
