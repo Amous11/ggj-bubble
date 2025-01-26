@@ -33,6 +33,9 @@ namespace GGJ
         private bool isWallSliding; // Flag for wall sliding
         public bool canStick;
 
+        [Header("Animation")]
+        [SerializeField] private Animator playerAnim;
+
         private void Awake()
         {
             controller = GetComponent<CharacterController>();
@@ -58,6 +61,11 @@ namespace GGJ
             }
 
             controller.Move(moveDirection * Time.deltaTime);
+
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                playerAnim.SetTrigger("Shoot");
+            }
         }
         IEnumerator DisableStickBehavior()
         {
@@ -70,9 +78,20 @@ namespace GGJ
         }
         private void HandleMovement()
         {
+
             float moveHorizontal = Input.GetAxisRaw("Horizontal");
             float moveVertical = Input.GetAxisRaw("Vertical");
 
+            bool isMoving;
+
+            if (Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0)
+            {
+                isMoving = false;
+            }
+            else 
+            { 
+                isMoving = true; 
+            }
             Vector3 forward = cameraTransform.forward;
             Vector3 right = cameraTransform.right;
 
@@ -87,9 +106,31 @@ namespace GGJ
             if (Input.GetKey(KeyCode.LeftShift))
             {
                 targetDirection *= dashMultiplier;
+                ChangeIdleAnimationSpeed(10);
             }
 
             moveDirection = Vector3.SmoothDamp(moveDirection, targetDirection, ref currentVelocity, moveDirection.magnitude > 0 ? 1f / acceleration : 1f / deceleration);
+
+            // Check if the player is moving
+
+            if(isMoving )
+            {if( !Input.GetKey(KeyCode.LeftShift))
+                {
+                    ChangeIdleAnimationSpeed(5f);
+                    print("1isMoving" + isMoving);
+                }
+            }
+            if(!isMoving)
+            {
+                ChangeIdleAnimationSpeed(1);
+                print("2isMoving" + isMoving);
+
+            }
+        }
+        private bool IsPlayerIdle()
+        {
+            // Check if the player is grounded and there is no movement input
+            return Mathf.Approximately(moveDirection.x, 0f) && Mathf.Approximately(moveDirection.z, 0f) && isGrounded;
         }
 
         private void HandleJump()
@@ -98,7 +139,8 @@ namespace GGJ
             {
                 // Normal jump when grounded
                 verticalVelocity = jumpForce;
-                isWallSliding = false; // Ensure sliding is stopped when jumping from the ground
+                isWallSliding = false; // Ensure sliding is stopped when jumping from the ground 
+                playerAnim.SetTrigger("Jump");
             }
 
             if (!isGrounded && isTouchingWall && Input.GetKeyDown(KeyCode.Space))
@@ -159,7 +201,12 @@ namespace GGJ
         {
             moveDirection = direction;
         }
+        public void ChangeIdleAnimationSpeed(float speed)
+        {
+            //playerAnim.SetFloat("IDLE", speed); // Update the animator parameter
+            playerAnim.SetFloat("Idle_Speed", speed); // Update the Animator parameter
 
+        }
         // Detect when player enters a wall trigger
         private void OnTriggerEnter(Collider other)
         {
