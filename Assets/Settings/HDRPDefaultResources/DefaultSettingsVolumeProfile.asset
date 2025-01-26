@@ -1096,10 +1096,10 @@ MonoBehaviour:
     m_Value: 1
   upperHemisphereLuxValue:
     m_OverrideState: 1
-    m_Value: 0.97983515
+    m_Value: 0.97983295
   upperHemisphereLuxColor:
     m_OverrideState: 1
-    m_Value: {x: 0.119949654, y: 0.24284089, z: 0.5}
+    m_Value: {x: 0.119949706, y: 0.2428404, z: 0.5}
   desiredLuxValue:
     m_OverrideState: 1
     m_Value: 20000
@@ -2389,13 +2389,13 @@ MonoBehaviour:
   interCascadeBorders: 1
   maxShadowDistance:
     m_OverrideState: 1
-    m_Value: 150
+    m_Value: 0
   directionalTransmissionMultiplier:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   cascadeShadowSplitCount:
     m_OverrideState: 1
-    m_Value: 4
+    m_Value: 1
   cascadeShadowSplit0:
     m_OverrideState: 1
     m_Value: 0.05
@@ -2407,7 +2407,7 @@ MonoBehaviour:
     m_Value: 0.3
   cascadeShadowBorder0:
     m_OverrideState: 1
-    m_Value: 0.06905067
+    m_Value: 0
   cascadeShadowBorder1:
     m_OverrideState: 1
     m_Value: 0.05086228
