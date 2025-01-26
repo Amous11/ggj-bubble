@@ -47,8 +47,6 @@ namespace GGJ
             // The Game Session SPECIFIC settings are initialized
             if (Object.HasStateAuthority == false) return;
             _isAlive = true;
-
-            
         }
 
         public override void Render()
@@ -92,7 +90,7 @@ namespace GGJ
             // Checks if the spaceship got hit by an asteroid
             if (_isAlive ) //&& HasHitAsteroid()
             {
-                ShipWasHit();
+                PlayerWasHit();
             }
         }
 
@@ -120,11 +118,9 @@ namespace GGJ
 
         // Toggle the _isAlive boolean if the spaceship was hit and check whether the player has any lives left.
         // If they do, then the _respawnTimer is activated.
-        private void ShipWasHit()
+        private void PlayerWasHit()
         {
             _isAlive = false;
-
-            ResetShip();
 
             if (Object.HasStateAuthority == false) return;
 
@@ -141,12 +137,6 @@ namespace GGJ
 
             FindObjectOfType<GameStateController>().CheckIfGameHasEnded();
         }
-
-        // Resets the spaceships movement velocity
-        private void ResetShip()
-        {
-            _rigidbody.velocity = Vector3.zero;
-            _rigidbody.angularVelocity = Vector3.zero;
-        }
+        
     }
 }

@@ -16,10 +16,10 @@ namespace GGJ
         [SerializeField] private TextMeshProUGUI _nickNamePlaceholder = null;
 
         [SerializeField] private TMP_InputField _roomName = null;
+        [SerializeField] private string _gameSceneName = null;
 
         [SerializeField] private Button hostButton;
         [SerializeField] private Button joinButton;
-
         private NetworkRunner _runnerInstance = null;
 
         private void Awake()
@@ -32,13 +32,13 @@ namespace GGJ
         public void StartHost()
         {
             SetPlayerData();
-            StartGame(GameMode.AutoHostOrClient, _roomName.text);
+            StartGame(GameMode.AutoHostOrClient, _roomName.text, _gameSceneName);
         }
 
         public void StartClient()
         {
             SetPlayerData();
-            StartGame(GameMode.Client, _roomName.text);
+            StartGame(GameMode.Client, _roomName.text, _gameSceneName);
         }
 
         private void SetPlayerData()
@@ -59,7 +59,7 @@ namespace GGJ
             }
         }
 
-        private async void StartGame(GameMode mode, string roomName)
+        private async void StartGame(GameMode mode, string roomName, string sceneName)
         {
             _runnerInstance = FindObjectOfType<NetworkRunner>();
             if (_runnerInstance == null)
@@ -80,6 +80,11 @@ namespace GGJ
             // GameMode.Host = Start a session with a specific name
             // GameMode.Client = Join a session with a specific name
             await _runnerInstance.StartGame(startGameArgs);
+            
+            if (_runnerInstance.IsServer)
+            {
+                _runnerInstance.LoadScene(sceneName);
+            }
         }
     }
 }

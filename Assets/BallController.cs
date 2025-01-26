@@ -1,10 +1,10 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Fusion;
 
 namespace GGJ
 {
-    public class BallController : MonoBehaviour
+    public class BallController : NetworkBehaviour
     {
         [Header("Movement Settings")]
         public float speed = 10f;
@@ -15,23 +15,20 @@ namespace GGJ
 
         [Header("Rotation Settings")]
         public float rotationSpeed = 100f;
-
-        [Header("Camera Settings")]
-        public Transform cameraTransform;
-
+        
         [Header("Wall Sliding Settings")]
-        public float wallSlideGravity = -4.905f; // Gravity when wall sliding
-        public float wallSlideSpeed = 2f; // Speed of sliding down the wall
+        public float wallSlideGravity = -4.905f;
+        public float wallSlideSpeed = 2f;
 
         private CharacterController controller;
-        private Vector3 moveDirection = Vector3.zero;
         private Vector3 currentVelocity = Vector3.zero;
-        private float gravity = -9.81f;
-        private float verticalVelocity;
-        private bool isGrounded;
-        private bool isTouchingWall; // Check if touching a wall
-        private bool isWallSliding; // Flag for wall sliding
-        public bool canStick;
+        private Transform _cameraTransform;
+
+        [Networked] private Vector3 MoveDirection { get; set; }
+        [Networked] private float VerticalVelocity { get; set; }
+        [Networked] private bool IsWallSliding { get; set; }
+        [Networked] private bool IsTouchingWall { get; set; }
+        [Networked] private bool CanStick { get; set; } = true;
 
         [Header("Animation")]
         [SerializeField] private Animator playerAnim;
@@ -40,64 +37,83 @@ namespace GGJ
         {
             controller = GetComponent<CharacterController>();
         }
-
-        private void Update()
+        
+        public override void Spawned()
         {
-            isGrounded = controller.isGrounded;
-
-            if (isGrounded && verticalVelocity < 0)
+            if (HasInputAuthority)
             {
-                verticalVelocity = -2f;
+                AssignSharedCamera();
             }
+        }
+
+        private void AssignSharedCamera()
+        {
+            // Find and assign the main camera
+            if (_cameraTransform == null)
+            {
+                Camera mainCamera = Camera.main;
+
+                if (mainCamera != null)
+                {
+                    _cameraTransform = mainCamera.transform;
+                }
+                else
+                {
+                    Debug.LogError("No Main Camera found in the scene. Please add a Main Camera and set its tag to 'MainCamera'.");
+                    return;
+                }
+            }
+
+            // Adjust camera position and target
+            _cameraTransform.position = transform.position + new Vector3(0, 2, -3); // Adjust offset as needed
+            _cameraTransform.LookAt(transform.position + Vector3.up * 2); // Adjust look position
+        }
+
+        public override void FixedUpdateNetwork()
+        {
+            if (!HasStateAuthority) return;
+
+            // Camera Handling for Input Authority
+            if (HasInputAuthority && _cameraTransform != null)
+            {
+                _cameraTransform.position = transform.position + new Vector3(0, 2, -3); // Adjust offset as needed
+                _cameraTransform.LookAt(transform);
+            }
+            
+            // Check if grounded
+            bool isGrounded = controller.isGrounded;
+            if (isGrounded && VerticalVelocity < 0)
+                VerticalVelocity = -2f;
 
             HandleMovement();
-            HandleJump();
+            HandleJump(isGrounded);
             HandleRotation();
 
-            if (isWallSliding)
-            {
-                // Apply wall sliding gravity
-                verticalVelocity = wallSlideGravity;
-            }
+            if (IsWallSliding)
+                VerticalVelocity = wallSlideGravity;
 
-            controller.Move(moveDirection * Time.deltaTime);
+            Vector3 updatedDirection = MoveDirection;
+            updatedDirection.y = VerticalVelocity;
+            MoveDirection = updatedDirection;
+            controller.Move(MoveDirection * Runner.DeltaTime);
 
             if (Input.GetKeyDown(KeyCode.E))
             {
-                playerAnim.SetTrigger("Shoot");
+                RPC_PlayShootAnimation();
             }
         }
-        IEnumerator DisableStickBehavior()
-        {
-            canStick = false;
-            isWallSliding = false;
-            isTouchingWall = false;
-            yield return new WaitForSeconds(1);
-            canStick = true;
 
-        }
         private void HandleMovement()
         {
+            if (!HasInputAuthority) return;
 
             float moveHorizontal = Input.GetAxisRaw("Horizontal");
             float moveVertical = Input.GetAxisRaw("Vertical");
-
-            bool isMoving;
-
-            if (Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0)
-            {
-                isMoving = false;
-            }
-            else 
-            { 
-                isMoving = true; 
-            }
-            Vector3 forward = cameraTransform.forward;
-            Vector3 right = cameraTransform.right;
+            Vector3 forward = _cameraTransform.forward;
+            Vector3 right = _cameraTransform.right;
 
             forward.y = 0f;
             right.y = 0f;
-
             forward.Normalize();
             right.Normalize();
 
@@ -109,140 +125,88 @@ namespace GGJ
                 ChangeIdleAnimationSpeed(10);
             }
 
-            moveDirection = Vector3.SmoothDamp(moveDirection, targetDirection, ref currentVelocity, moveDirection.magnitude > 0 ? 1f / acceleration : 1f / deceleration);
+            Vector3 newMoveDirection = Vector3.SmoothDamp(MoveDirection, targetDirection, ref currentVelocity, 
+                MoveDirection.magnitude > 0 ? 1f / acceleration : 1f / deceleration);
+            MoveDirection = newMoveDirection;
 
-            // Check if the player is moving
-
-            if(isMoving )
-            {if( !Input.GetKey(KeyCode.LeftShift))
-                {
-                    ChangeIdleAnimationSpeed(5f);
-                    print("1isMoving" + isMoving);
-                }
-            }
-            if(!isMoving)
-            {
-                ChangeIdleAnimationSpeed(1);
-                print("2isMoving" + isMoving);
-
-            }
-        }
-        private bool IsPlayerIdle()
-        {
-            // Check if the player is grounded and there is no movement input
-            return Mathf.Approximately(moveDirection.x, 0f) && Mathf.Approximately(moveDirection.z, 0f) && isGrounded;
+            ChangeIdleAnimationSpeed(MoveDirection.magnitude > 0 ? 5f : 1f);
         }
 
-        private void HandleJump()
+        private void HandleJump(bool isGrounded)
         {
+            if (!HasInputAuthority) return;
+
             if (isGrounded && Input.GetKeyDown(KeyCode.Space))
             {
-                // Normal jump when grounded
-                verticalVelocity = jumpForce;
-                isWallSliding = false; // Ensure sliding is stopped when jumping from the ground 
+                VerticalVelocity = jumpForce;
+                IsWallSliding = false;
                 playerAnim.SetTrigger("Jump");
             }
 
-            if (!isGrounded && isTouchingWall && Input.GetKeyDown(KeyCode.Space))
+            if (!isGrounded && IsTouchingWall && Input.GetKeyDown(KeyCode.Space))
             {
-                // Eliminate sticky behavior and perform jump
-                StartCoroutine("DisableStickBehavior");
-                isWallSliding = false; // Stop wall sliding when jumping off the wall
-
-                // Apply vertical velocity like a normal jump (no wall influence)
-                verticalVelocity = jumpForce/1.5f;
-
-                // Reset horizontal movement to avoid sticking to the wall
-                //moveDirection.x = 0f; // Reset horizontal movement
-                //moveDirection.z = 0f;
-
-                // Calculate direction opposite to the wall to jump away from it
-                Vector3 wallDirection = transform.right; // If touching the left side of the wall, this will give the opposite direction
-                if (isTouchingWall && !isGrounded)
-                {
-                    wallDirection = -transform.right; // Jump in the opposite direction of the wall
-                }
-
-                // Apply horizontal force to move the player away from the wall (in the opposite direction)
-                //moveDirection += wallDirection * speed;
-
-                isWallSliding = false; // Stop wall sliding when jumping off the wall
+                StartCoroutine(DisableStickBehavior());
+                IsWallSliding = false;
+                VerticalVelocity = jumpForce / 1.5f;
             }
 
-            if (isTouchingWall && !isGrounded && !isWallSliding && canStick)
-            {
-                // Start wall sliding when player is not grounded and touches the wall
-                isWallSliding = true;
-            }
+            if (IsTouchingWall && !isGrounded && !IsWallSliding && CanStick)
+                IsWallSliding = true;
 
-            verticalVelocity += gravity * Time.deltaTime;
-            moveDirection.y = verticalVelocity;
+            VerticalVelocity += Physics.gravity.y * Runner.DeltaTime;
         }
-
-
-        private float verticalRotation = 0f; // Track the vertical rotation
-
-      
 
         private void HandleRotation()
         {
+            if (!HasInputAuthority) return;
+
             float mouseX = Input.GetAxis("Mouse X");
             float mouseY = Input.GetAxis("Mouse Y");
 
-            // Rotate the object horizontally (around the Y-axis)
-            transform.Rotate(Vector3.up, mouseX * rotationSpeed * Time.deltaTime);
-
-            // Calculate the new vertical rotation and clamp it to a range of -80 to 80 degrees
-            verticalRotation -= mouseY * rotationSpeed * Time.deltaTime;
-            verticalRotation = Mathf.Clamp(verticalRotation, -30f, 20f); // Limit vertical rotation
-
-            // Apply the vertical rotation (around the X-axis)
-            transform.localRotation = Quaternion.Euler(verticalRotation, transform.localRotation.eulerAngles.y, 0f);
+            transform.Rotate(Vector3.up, mouseX * rotationSpeed * Runner.DeltaTime);
         }
 
-
-        public void ApplyVerticalVelocity(float velocity)
+        private IEnumerator DisableStickBehavior()
         {
-            verticalVelocity = velocity;
+            CanStick = false;
+            IsWallSliding = false;
+            IsTouchingWall = false;
+            yield return new WaitForSeconds(1);
+            CanStick = true;
         }
 
-        public Vector3 GetMoveDirection()
+        private void ChangeIdleAnimationSpeed(float speed)
         {
-            return moveDirection;
+            playerAnim.SetFloat("Idle_Speed", speed);
         }
 
-        public void SetMoveDirection(Vector3 direction)
-        {
-            moveDirection = direction;
-        }
-        public void ChangeIdleAnimationSpeed(float speed)
-        {
-            //playerAnim.SetFloat("IDLE", speed); // Update the animator parameter
-            playerAnim.SetFloat("Idle_Speed", speed); // Update the Animator parameter
-
-        }
-        // Detect when player enters a wall trigger
         private void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("Wall") && canStick)
+            if (!HasStateAuthority) return;
+
+            if (other.CompareTag("Wall") && CanStick)
             {
-                isTouchingWall = true;
-                // Start wall sliding if the player is not grounded
-                if (!isGrounded)
-                {
-                    isWallSliding = true;
-                }
+                IsTouchingWall = true;
+                if (!controller.isGrounded)
+                    IsWallSliding = true;
             }
         }
 
-        // Detect when player exits a wall trigger
         private void OnTriggerExit(Collider other)
         {
+            if (!HasStateAuthority) return;
+
             if (other.CompareTag("Wall"))
             {
-                isTouchingWall = false;
-                isWallSliding = false; // Stop wall sliding when exiting the wall
+                IsTouchingWall = false;
+                IsWallSliding = false;
             }
+        }
+
+        [Rpc(RpcSources.InputAuthority, RpcTargets.All)]
+        private void RPC_PlayShootAnimation()
+        {
+            playerAnim.SetTrigger("Shoot");
         }
     }
 }

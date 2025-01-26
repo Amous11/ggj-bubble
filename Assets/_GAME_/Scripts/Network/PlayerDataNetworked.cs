@@ -12,7 +12,7 @@ namespace GGJ
         private const int STARTING_LIVES = 3;
 
         // Local Runtime references
-        private Scoreboard _overviewPanel = null;
+        // private Scoreboard _scoreboard = null;
 
         private ChangeDetector _changeDetector;
 
@@ -50,14 +50,15 @@ namespace GGJ
 
             // --- Host & Client
             // Set the local runtime references.
-            _overviewPanel = FindObjectOfType<Scoreboard>();
+            // _scoreboard = FindObjectOfType<Scoreboard>();
+            
             // Add an entry to the local Overview panel with the information of this spaceship
-            _overviewPanel.AddEntry(Object.InputAuthority, this);
+            // _scoreboard.AddEntry(Object.InputAuthority, this);
             
             // Refresh panel visuals in Spawned to set to initial values.
-            _overviewPanel.UpdateNickName(Object.InputAuthority, NickName.ToString());
-            _overviewPanel.UpdateLives(Object.InputAuthority, Lives);
-            _overviewPanel.UpdateScore(Object.InputAuthority, Score);
+            // _scoreboard.UpdateNickName(Object.InputAuthority, NickName.ToString());
+            // _scoreboard.UpdateLives(Object.InputAuthority, Lives);
+            // _scoreboard.UpdateScore(Object.InputAuthority, Score);
             
             _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
         }
@@ -69,13 +70,13 @@ namespace GGJ
                 switch (change)
                 {
                     case nameof(NickName):
-                        _overviewPanel.UpdateNickName(Object.InputAuthority, NickName.ToString());
+                        // _scoreboard.UpdateNickName(Object.InputAuthority, NickName.ToString());
                         break;
                     case nameof(Score):
-                        _overviewPanel.UpdateScore(Object.InputAuthority, Score);
+                        // _scoreboard.UpdateScore(Object.InputAuthority, Score);
                         break;
                     case nameof(Lives):
-                        _overviewPanel.UpdateLives(Object.InputAuthority, Lives);
+                        // _scoreboard.UpdateLives(Object.InputAuthority, Lives);
                         break;
                 }
             }
@@ -84,7 +85,7 @@ namespace GGJ
         // Remove the entry in the local Overview panel for this spaceship
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
-            _overviewPanel.RemoveEntry(Object.InputAuthority);
+            // _scoreboard.RemoveEntry(Object.InputAuthority);
         }
 
         // Increase the score by X amount of points

@@ -13,6 +13,12 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player_V1 Networked
       objectReference: {fileID: 0}
+    - target: {fileID: 1215207166446528833, guid: c999830a75dfce74b85205516558b9f1,
+        type: 3}
+      propertyPath: cameraTransform
+      value: 
+      objectReference: {fileID: 1942995309789280608, guid: bebecac3ea1972d40a1e6e56bd409a3f,
+        type: 3}
     - target: {fileID: 2733029098782963695, guid: c999830a75dfce74b85205516558b9f1,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -88,6 +94,18 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 8569894679853189863}
   m_SourcePrefab: {fileID: 100100000, guid: c999830a75dfce74b85205516558b9f1, type: 3}
+--- !u!114 &2681655448583667008 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1215207166446528833, guid: c999830a75dfce74b85205516558b9f1,
+    type: 3}
+  m_PrefabInstance: {fileID: 3885039771430163457}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4425811707974629174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 944ba99622c689a44a7742eba626b498, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4425811707974629174 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 612994612558799671, guid: c999830a75dfce74b85205516558b9f1,
@@ -111,6 +129,7 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
+  - {fileID: 2681655448583667008}
   - {fileID: 8489490734376355882}
   - {fileID: 8115149767504314040}
   - {fileID: 8569894679853189863}

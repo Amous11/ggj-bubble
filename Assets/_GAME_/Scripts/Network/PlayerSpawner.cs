@@ -17,6 +17,7 @@ namespace GGJ
 
         public override void Spawned()
         {
+            Debug.Log("player spawner started");
             if (Object.HasStateAuthority == false) return;
             // Collect all spawn points in the scene.
             _spawnPoints = FindObjectsOfType<SpawnPoint>();
@@ -25,10 +26,12 @@ namespace GGJ
         // The spawner is started when the GameStateController switches to GameState.Running.
         public void StartPlayerSpawner(GameStateController gameStateController)
         {
+            Debug.Log("StartPlayerSpawner");
             _gameIsReady = true;
             _gameStateController = gameStateController;
             foreach (var player in Runner.ActivePlayers)
             {
+                Debug.Log("spawning pid " + player.PlayerId);
                 SpawnPlayer(player);
             }
         }
@@ -47,7 +50,9 @@ namespace GGJ
             // Modulo is used in case there are more players than spawn points.
             int index = player.PlayerId % _spawnPoints.Length;
             var spawnPosition = _spawnPoints[index].transform.position;
-
+            
+            Debug.Log("Spawning player " + player.PlayerId + " at position " + spawnPosition);
+            
             var playerObject = Runner.Spawn(_spaceshipNetworkPrefab, spawnPosition, Quaternion.identity, player);
             // Set Player Object to facilitate access across systems.
             Runner.SetPlayerObject(player, playerObject);
