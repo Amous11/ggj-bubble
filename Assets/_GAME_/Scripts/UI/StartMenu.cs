@@ -1,6 +1,7 @@
 using UnityEngine;
 using Fusion;
 using TMPro;
+using UnityEngine.UI;
 
 namespace GGJ
 {
@@ -16,7 +17,16 @@ namespace GGJ
 
         [SerializeField] private TMP_InputField _roomName = null;
 
+        [SerializeField] private Button hostButton;
+        [SerializeField] private Button joinButton;
+
         private NetworkRunner _runnerInstance = null;
+
+        private void Awake()
+        {
+            hostButton.onClick.AddListener(() => StartHost());
+            joinButton.onClick.AddListener(() => StartClient());
+        }
 
         // Attempts to start a new game session 
         public void StartHost()
