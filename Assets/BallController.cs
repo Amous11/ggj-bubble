@@ -180,12 +180,26 @@ namespace GGJ
         }
 
 
+        private float verticalRotation = 0f; // Track the vertical rotation
+
+      
 
         private void HandleRotation()
         {
             float mouseX = Input.GetAxis("Mouse X");
+            float mouseY = Input.GetAxis("Mouse Y");
+
+            // Rotate the object horizontally (around the Y-axis)
             transform.Rotate(Vector3.up, mouseX * rotationSpeed * Time.deltaTime);
+
+            // Calculate the new vertical rotation and clamp it to a range of -80 to 80 degrees
+            verticalRotation -= mouseY * rotationSpeed * Time.deltaTime;
+            verticalRotation = Mathf.Clamp(verticalRotation, -30f, 20f); // Limit vertical rotation
+
+            // Apply the vertical rotation (around the X-axis)
+            transform.localRotation = Quaternion.Euler(verticalRotation, transform.localRotation.eulerAngles.y, 0f);
         }
+
 
         public void ApplyVerticalVelocity(float velocity)
         {
