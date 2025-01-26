@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8264519914546863408}
   - component: {fileID: 1355301865363515469}
+  - component: {fileID: -297510408914367897}
   - component: {fileID: 6102229970268713540}
   - component: {fileID: 3537446115022697112}
   - component: {fileID: -4892177442815449433}
@@ -47,6 +48,18 @@ MonoBehaviour:
   m_Script: {fileID: -1199893898, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-297510408914367897
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 484192579049981034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16a724063ce22e24d808759d8fbd69e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &6102229970268713540
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74,7 +87,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DelayIfSceneManagerIsBusy: 1
   _poolableObjects:
-  - {fileID: 0}
+  - {fileID: 3891745715594655316, guid: e3629e85208e0d543ba89ea72d624acb, type: 3}
 --- !u!114 &-4892177442815449433
 MonoBehaviour:
   m_ObjectHideFlags: 0

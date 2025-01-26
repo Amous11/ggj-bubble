@@ -418,12 +418,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5819326e72a2914da29ca449c666270, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _networkRunnerPrefab: {fileID: 0}
-  _playerDataPrefab: {fileID: 0}
+  _networkRunnerPrefab: {fileID: 1355301865363515469, guid: 4eca6299124d16c47a4e7788c0055aea,
+    type: 3}
+  _playerDataPrefab: {fileID: 2205005229434512216, guid: 91ad58cc2c16af645a1e18f44d35ace5,
+    type: 3}
   _nickName: {fileID: 0}
   _nickNamePlaceholder: {fileID: 0}
   _roomName: {fileID: 0}
-  _gameSceneName: 
 --- !u!4 &387894422
 Transform:
   m_ObjectHideFlags: 0
